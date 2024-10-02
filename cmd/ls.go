@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"todo_cli/tasks"
+	"github.com/lexantus/todo_cli/tasks"
 
 	"github.com/spf13/cobra"
 )
@@ -14,7 +14,6 @@ import (
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "A brief description of your command",
-	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(tasks.NewTask("List me"))
 		fmt.Println(tasks.NewTask("List me").Progress(10))

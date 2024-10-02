@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"errors"
 	"fmt"
 	"log"
 )
@@ -79,8 +78,7 @@ func getNextId() func() Id {
 }
 
 func (t Task) getNotExistTaskError(id Id) error {
-	errorTxt := fmt.Sprintf("Task with id %s does not exist", id)
-	return errors.New(errorTxt)
+	return fmt.Errorf("task with id %s does not exist", id)
 }
 
 func (t Task) getTaskById(id Id) (error, Task) {
@@ -118,11 +116,11 @@ func (t Task) Complete(id Id) Task {
 	return task
 }
 
-func (t Task) Progress(progress uint8) Task {
+func (t Task) Progress(progress uint8) (Task, error) {
 	if progress > 100 {
-		panic(errors.New("progress more than 100%"))
+		return Task{}, fmt.Errorf("progress more than 100%% - %d%%", progress)
 	}
 	t.status = IN_PROGRESS
 	t.progress = progress
-	return t
+	return t, nil
 }
