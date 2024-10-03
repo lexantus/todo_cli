@@ -16,7 +16,7 @@ var lsCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(tasks.NewTask("List me"))
-		fmt.Println(tasks.NewTask("List me").Progress(10))
+		fmt.Println(tasks.NewTask("List me").ProgressOn(10))
 		fmt.Println(tasks.NewTask("List me").Complete("id3"))
 		fmt.Println(tasks.NewTask("List me").Remove("id4", "reason why fail to do"))
 		fmt.Println(tasks.NewTask("List me"))

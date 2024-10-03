@@ -16,7 +16,7 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		description := strings.Join(args[:], " ")
 		task := tasks.NewTask(description)
-		err := tasks.Store(task.String())
+		err := tasks.Store(task)
 		if err != nil {
 			tasks.Logger.Error("Store from add command", zap.Error(err))
 		}

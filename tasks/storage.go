@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"go.uber.org/zap"
 	"os"
 	"path/filepath"
@@ -36,17 +37,17 @@ func getStoragePath() (string, error) {
 	return storageDir, nil
 }
 
-func Store(data string) error {
+func Store(t Task) error {
 	storagePath, err := getStoragePath()
 	if err != nil {
 		Logger.Error("getStoragePath", zap.Error(err))
 		return fmt.Errorf("getStoragePath %v", err)
 	}
 	fp := filepath.Join(storagePath, "todo.toml")
-	file, err := os.Create(fp)
+	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		Logger.Error("os.Create", zap.Error(err))
-		return fmt.Errorf("os.Create %v", err)
+		Logger.Error("os.OpenFile", zap.Error(err))
+		return fmt.Errorf("os.OpenFile %v", err)
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -55,14 +56,20 @@ func Store(data string) error {
 		}
 	}(file)
 
-	// toml.Decode() - пока не понял как загнать в этот формат дату
+	tomlTask, tomlErr := toml.Marshal(struct {
+		Task Task `toml:"[task]"`
+	}{t})
 
-	_, err = file.WriteString(data)
+	if tomlErr != nil {
+		Logger.Error("Marshal task", zap.Error(tomlErr))
+	}
+
+	_, err = file.WriteString(string(tomlTask))
 	if err != nil {
 		Logger.Error("WriteString", zap.Error(err))
 		return fmt.Errorf("WriteString %v", err)
 	}
-	fmt.Printf("Data written successfully! [%s]\n", data)
-	Logger.Info("Data written successfully!", zap.String("data", data))
+	fmt.Printf("Data written successfully! [%s]\n", tomlTask)
+	Logger.Info("Data written successfully!", zap.String("tomlTask", string(tomlTask)))
 	return nil
 }
