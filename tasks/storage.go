@@ -50,7 +50,12 @@ func Store(t Task) error {
 		return fmt.Errorf("os.OpenFile %v", err)
 	}
 	defer func(file *os.File) {
-		err := file.Close()
+		err := file.Sync()
+		if err != nil {
+			Logger.Error("Sync file", zap.Error(err))
+		}
+
+		err = file.Close()
 		if err != nil {
 			Logger.Error("Close file", zap.Error(err))
 		}
