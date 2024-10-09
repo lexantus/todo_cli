@@ -14,7 +14,7 @@ var addCmd = &cobra.Command{
 		tasks.Init()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		description := strings.Join(args[:], " ")
+		description := strings.Join(args, " ")
 		task := tasks.NewTask(description)
 		err := tasks.Store(task)
 		if err != nil {
