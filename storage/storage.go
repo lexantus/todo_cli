@@ -10,25 +10,26 @@ import (
 	"path/filepath"
 )
 
-func Read(config interface{}) {
+const FileName = "todo.toml"
+
+func getFilePath() string {
 	storagePath, err := env.GetAppDir()
 	if err != nil {
 		logger.Logger.Error("getStoragePath", zap.Error(err))
 	}
-	fp := filepath.Join(storagePath, "todo.toml")
-	_, err = toml.DecodeFile(fp, config)
+	return filepath.Join(storagePath, FileName)
+}
+
+func Read(config interface{}) {
+	fp := getFilePath()
+	_, err := toml.DecodeFile(fp, config)
 	if err != nil {
 		logger.Logger.Error("toml.DecodeFile", zap.Error(err))
 	}
 }
 
 func Store(t interface{}) error {
-	storagePath, err := env.GetAppDir()
-	if err != nil {
-		logger.Logger.Error("getStoragePath", zap.Error(err))
-		return fmt.Errorf("getStoragePath %v", err)
-	}
-	fp := filepath.Join(storagePath, "todo.toml")
+	fp := getFilePath()
 	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		logger.Logger.Error("os.OpenFile", zap.Error(err))
