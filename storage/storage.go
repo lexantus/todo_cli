@@ -47,8 +47,8 @@ func Store(t interface{}) error {
 	}(file)
 
 	tomlTask, tomlErr := toml.Marshal(struct {
-		Task interface{} `toml:"task"`
-	}{t})
+		Task []interface{} `toml:"task"`
+	}{Task: []interface{}{t}})
 
 	if tomlErr != nil {
 		logger.Logger.Error("Marshal task", zap.Error(tomlErr))
