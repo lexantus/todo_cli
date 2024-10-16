@@ -1,24 +1,21 @@
 # todo cli
 
+## Build and Run
 ```
-todo -a read book
-todo --add read another book
+make build
+make run
+```
 
-todo ls -a
-todo ls --all
+## Install
+```
+go install github.com/lexantus/todo_cli
+```
 
-todo ls -c
-todo ls --completed
-
-todo ls -r
-todo ls --removed
-
-todo -c id1
-todo --complete id2
-
-todo -p id1 10
-todo --progress id1 33%
-
-todo -r id1 -w bad task to do
-todo --remove id2 --why not actual
+## Commands 
+```
+todo add
+todo ls 
+todo complete
+todo progress
+todo remove
 ```
