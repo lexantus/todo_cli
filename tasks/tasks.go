@@ -1,8 +1,11 @@
 package tasks
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log"
+	"time"
 )
 
 type Id string
@@ -48,10 +51,24 @@ func (t Task) String() string {
 	return fmt.Sprintf("[%s] %s [%d%%]", statusIndicator, t.Desc, t.Progress)
 }
 
-var nextId = getNextId()
+func generateUniqueID() Id {
+	// Get the current timestamp
+	timestamp := time.Now().UnixNano()
+
+	// Generate a random number
+	randomBytes := make([]byte, 4)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	// Combine timestamp and random bytes
+	id := fmt.Sprintf("%d-%s", timestamp, hex.EncodeToString(randomBytes))
+	return Id(id)
+}
 
 func NewTask(desc string) Task {
-	id := nextId()
+	id := generateUniqueID()
 	task := Task{
 		Id:     id,
 		Desc:   desc,
@@ -68,14 +85,6 @@ type RemovedTask struct {
 
 var tasks map[Id]Task = make(map[Id]Task)
 var removedTasks map[Id]RemovedTask = make(map[Id]RemovedTask)
-
-func getNextId() func() Id {
-	idCounter := 0
-	return func() Id {
-		idCounter++
-		return Id(fmt.Sprintf("id%d", idCounter))
-	}
-}
 
 func (t Task) getNotExistTaskError(id Id) error {
 	return fmt.Errorf("task with id %s does not exist", id)
