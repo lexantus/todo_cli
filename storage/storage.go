@@ -60,7 +60,6 @@ func Store(t interface{}) error {
 		logger.Logger.Error("WriteString", zap.Error(err))
 		return fmt.Errorf("WriteString %v", err)
 	}
-	fmt.Printf("Data written successfully! [%s]\n", tomlTask)
 	logger.Logger.Info("Data written successfully!", zap.String("tomlTask", string(tomlTask)))
 	return nil
 }
