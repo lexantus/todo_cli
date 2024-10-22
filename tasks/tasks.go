@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+//go:generate go run github.com/dmarkham/enumer -type=Status -output=status_enumer.go
+
 type Id string
 type Status int
 
@@ -17,17 +19,6 @@ const (
 	CANCELED
 	DONE
 )
-
-var TaskStatus = map[Status]string{
-	WAITING:     "WAITING",
-	IN_PROGRESS: "IN_PROGRESS",
-	CANCELED:    "CANCELED",
-	DONE:        "DONE",
-}
-
-func (s Status) String() string {
-	return TaskStatus[s]
-}
 
 type Task struct {
 	Id       Id     `toml:"id"`
