@@ -1,6 +1,8 @@
 package main
 
-import "todo_cli/cmd"
+import (
+	"github.com/lexantus/todo_cli/cmd"
+)
 
 func main() {
 	cmd.Execute()

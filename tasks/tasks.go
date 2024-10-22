@@ -1,10 +1,14 @@
 package tasks
 
 import (
-	"errors"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"log"
+	"time"
 )
+
+//go:generate go run github.com/dmarkham/enumer -type=Status -output=status_enumer.go
 
 type Id string
 type Status int
@@ -16,27 +20,16 @@ const (
 	DONE
 )
 
-var TaskStatus = map[Status]string{
-	WAITING:     "WAITING",
-	IN_PROGRESS: "IN_PROGRESS",
-	CANCELED:    "CANCELED",
-	DONE:        "DONE",
-}
-
-func (s Status) String() string {
-	return TaskStatus[s]
-}
-
 type Task struct {
-	id       Id
-	desc     string
-	status   Status
-	progress uint8 // [0-100] percents
+	Id       Id     `toml:"id"`
+	Desc     string `toml:"desc"`
+	Status   Status `toml:"status"`
+	Progress uint8  `toml:"progress"` // [0-100] percents
 }
 
 func (t Task) String() string {
 	var statusIndicator = " "
-	switch t.status {
+	switch t.Status {
 	case WAITING:
 		statusIndicator = "_"
 	case IN_PROGRESS:
@@ -46,17 +39,31 @@ func (t Task) String() string {
 	case DONE:
 		statusIndicator = "✅"
 	}
-	return fmt.Sprintf("[%s] %s [%d%%]", statusIndicator, t.desc, t.progress)
+	return fmt.Sprintf("[%s] %s [%d%%]", statusIndicator, t.Desc, t.Progress)
 }
 
-var nextId = getNextId()
+func generateUniqueID() Id {
+	// Get the current timestamp
+	timestamp := time.Now().UnixNano()
+
+	// Generate a random number
+	randomBytes := make([]byte, 4)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	// Combine timestamp and random bytes
+	id := fmt.Sprintf("%d-%s", timestamp, hex.EncodeToString(randomBytes))
+	return Id(id)
+}
 
 func NewTask(desc string) Task {
-	id := nextId()
+	id := generateUniqueID()
 	task := Task{
-		id:     id,
-		desc:   desc,
-		status: WAITING,
+		Id:     id,
+		Desc:   desc,
+		Status: WAITING,
 	}
 	tasks[id] = task
 	return task
@@ -70,17 +77,8 @@ type RemovedTask struct {
 var tasks map[Id]Task = make(map[Id]Task)
 var removedTasks map[Id]RemovedTask = make(map[Id]RemovedTask)
 
-func getNextId() func() Id {
-	idCounter := 0
-	return func() Id {
-		idCounter++
-		return Id(fmt.Sprintf("id%d", idCounter))
-	}
-}
-
 func (t Task) getNotExistTaskError(id Id) error {
-	errorTxt := fmt.Sprintf("Task with id %s does not exist", id)
-	return errors.New(errorTxt)
+	return fmt.Errorf("task with id %s does not exist", id)
 }
 
 func (t Task) getTaskById(id Id) (error, Task) {
@@ -97,12 +95,12 @@ func (t Task) Remove(id Id, reason string) Task {
 		log.Fatalf(err.Error())
 		return Task{}
 	}
-	task.status = CANCELED
+	task.Status = CANCELED
 	taskToRemove := RemovedTask{
 		Task:   task,
 		reason: reason,
 	}
-	removedTasks[task.id] = taskToRemove
+	removedTasks[task.Id] = taskToRemove
 	delete(tasks, id)
 	return task
 }
@@ -113,16 +111,16 @@ func (t Task) Complete(id Id) Task {
 		log.Fatalf(err.Error())
 		return Task{}
 	}
-	task.progress = 100
-	task.status = DONE
+	task.Progress = 100
+	task.Status = DONE
 	return task
 }
 
-func (t Task) Progress(progress uint8) Task {
+func (t Task) ProgressOn(progress uint8) (Task, error) {
 	if progress > 100 {
-		panic(errors.New("progress more than 100%"))
+		return Task{}, fmt.Errorf("progress more than 100%% - %d%%", progress)
 	}
-	t.status = IN_PROGRESS
-	t.progress = progress
-	return t
+	t.Status = IN_PROGRESS
+	t.Progress = progress
+	return t, nil
 }
