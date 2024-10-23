@@ -17,3 +17,5 @@ var completeCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(completeCmd)
 }
+
+// TODO remove me after PR
