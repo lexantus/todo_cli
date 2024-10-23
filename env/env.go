@@ -17,3 +17,5 @@ func GetAppDir() (string, error) {
 	}
 	return appDir, nil
 }
+
+// TODO remove me after PR

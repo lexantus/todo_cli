@@ -18,3 +18,5 @@ var progressCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(progressCmd)
 }
+
+// TODO remove me after PR

@@ -13,3 +13,5 @@ func init() {
 	Logger, _ = config.Build()
 	defer Logger.Sync()
 }
+
+// TODO remove me after PR

@@ -124,3 +124,5 @@ func (t Task) ProgressOn(progress uint8) (Task, error) {
 	t.Progress = progress
 	return t, nil
 }
+
+// TODO remove me after PR

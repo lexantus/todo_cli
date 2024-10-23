@@ -34,3 +34,5 @@ func init() {
 	flags.BoolP("completed", "c", false, "Print only completed tasks")
 	flags.BoolP("removed", "r", false, "Print only removed tasks")
 }
+
+// TODO remove me after PR
