@@ -1,29 +1,29 @@
-package cmd
+package cmd // delete me
 
-import (
-	"github.com/lexantus/todo_cli/logger"
-	"github.com/lexantus/todo_cli/storage"
-	"github.com/lexantus/todo_cli/tasks"
-	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"strings"
-)
+import ( // delete me
+	"github.com/lexantus/todo_cli/logger" // delete me
+	"github.com/lexantus/todo_cli/storage" // delete me
+	"github.com/lexantus/todo_cli/tasks" // delete me
+	"github.com/spf13/cobra" // delete me
+	"go.uber.org/zap" // delete me
+	"strings" // delete me
+) // delete me
 
-var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "A brief description of your command",
-	Run: func(cmd *cobra.Command, args []string) {
-		description := strings.Join(args, " ")
-		task := tasks.NewTask(description)
-		err := storage.Store(task)
-		if err != nil {
-			logger.Logger.Error("Store from add command", zap.Error(err))
-		}
-	},
-}
+var addCmd = &cobra.Command{ // delete me
+	Use:   "add", // delete me
+	Short: "A brief description of your command", // delete me
+	Run: func(cmd *cobra.Command, args []string) { // delete me
+		description := strings.Join(args, " ") // delete me
+		task := tasks.NewTask(description) // delete me
+		err := storage.Store(task) // delete me
+		if err != nil { // delete me
+			logger.Logger.Error("Store from add command", zap.Error(err)) // delete me
+		} // delete me
+	}, // delete me
+} // delete me
 
-func init() {
-	rootCmd.AddCommand(addCmd)
-}
+func init() { // delete me
+	rootCmd.AddCommand(addCmd) // delete me
+} // delete me
 
-// TODO remove me after PR
+// TODO remove me after PR // delete me
