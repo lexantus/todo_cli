@@ -1,21 +1,19 @@
-package cmd // delete me
+package cmd
 
-import ( // delete me
-	"fmt" // delete me
-	"github.com/spf13/cobra" // delete me
-) // delete me
+import (
+	"fmt"
+	"github.com/spf13/cobra"
+)
 
-var progressCmd = &cobra.Command{ // delete me
-	Use:   "progress", // delete me
-	Short: "A brief description of your command", // delete me
-	Long:  ``, // delete me
-	Run: func(cmd *cobra.Command, args []string) { // delete me
-		fmt.Println("progress called") // delete me
-	}, // delete me
-} // delete me
+var progressCmd = &cobra.Command{
+	Use:   "progress",
+	Short: "A brief description of your command",
+	Long:  ``,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("progress called")
+	},
+}
 
-func init() { // delete me
-	rootCmd.AddCommand(progressCmd) // delete me
-} // delete me
-
-// TODO remove me after PR // delete me
+func init() {
+	rootCmd.AddCommand(progressCmd)
+}

@@ -1,38 +1,36 @@
-package cmd  // delete me
+package cmd
 
-import ( // delete me
-	"fmt" // delete me
-	"github.com/lexantus/todo_cli/storage" // delete me
-	"github.com/lexantus/todo_cli/tasks" // delete me
-	"github.com/spf13/cobra" // delete me
-) // delete me
+import (
+	"fmt"
+	"github.com/lexantus/todo_cli/storage"
+	"github.com/lexantus/todo_cli/tasks"
+	"github.com/spf13/cobra"
+)
 
-type Config struct { // delete me
-	Tasks []tasks.Task `toml:"task"` // delete me
-} // delete me
+type Config struct {
+	Tasks []tasks.Task `toml:"task"`
+}
 
-var lsCmd = &cobra.Command{ // delete me
-	Use:   "ls", // delete me
-	Short: "List of todo tasks", // delete me
-	Run: func(cmd *cobra.Command, args []string) { // delete me
-		var config Config // delete me
-		storage.Read(&config) // delete me
-		for _, task := range config.Tasks { // delete me
-			fmt.Printf("ID: %s, Description: %s, Status: %d, Progress: %d%%\n", task.Id, task.Desc, task.Status, task.Progress) // delete me
-		} // delete me
-		for _, task := range config.Tasks { // delete me
-			fmt.Println(task.String()) // delete me
-		} // delete me
-	}, // delete me
-} // delete me
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List of todo tasks",
+	Run: func(cmd *cobra.Command, args []string) {
+		storage := storage.NewStorage()
+		tasks := storage.Read()
+		for _, task := range tasks {
+			fmt.Printf("ID: %s, Description: %s, Status: %d, Progress: %d%%\n", task.Id, task.Desc, task.Status, task.Progress)
+		}
+		for _, task := range tasks {
+			fmt.Println(task.String())
+		}
+	},
+}
 
-func init() { // delete me
-	rootCmd.AddCommand(lsCmd) // delete me
+func init() {
+	rootCmd.AddCommand(lsCmd)
 
-	flags := lsCmd.Flags() // delete me
-	flags.BoolP("all", "a", false, "Print all tasks") // delete me
-	flags.BoolP("completed", "c", false, "Print only completed tasks") // delete me
-	flags.BoolP("removed", "r", false, "Print only removed tasks") // delete me
-} // delete me
-
-// TODO remove me after PR // delete me
+	flags := lsCmd.Flags()
+	flags.BoolP("all", "a", false, "Print all tasks")
+	flags.BoolP("completed", "c", false, "Print only completed tasks")
+	flags.BoolP("removed", "r", false, "Print only removed tasks")
+}

@@ -1,67 +1,78 @@
-package storage // delete me
+package storage
 
-import ( // delete me
-	"fmt" // delete me
-	"github.com/BurntSushi/toml" // delete me
-	"github.com/lexantus/todo_cli/env" // delete me
-	"github.com/lexantus/todo_cli/logger" // delete me
-	"go.uber.org/zap" // delete me
-	"os" // delete me
-	"path/filepath" // delete me
-) // delete me
+import (
+	"fmt"
+	"github.com/BurntSushi/toml"
+	"github.com/lexantus/todo_cli/env"
+	"github.com/lexantus/todo_cli/logger"
+	"github.com/lexantus/todo_cli/tasks"
+	"go.uber.org/zap"
+	"os"
+	"path/filepath"
+)
 
-const FileName = "todo.toml" // delete me
+type Storage struct {
+	filepath string
+}
 
-func getFilePath() string { // delete me
-	storagePath, err := env.GetAppDir() // delete me
-	if err != nil { // delete me
-		logger.Logger.Error("getStoragePath", zap.Error(err)) // delete me
-	} // delete me
-	return filepath.Join(storagePath, FileName) // delete me
-} // delete me
+type tomlValues struct {
+	Tasks []tasks.Task `toml:"task"`
+}
 
-func Read(config interface{}) { // delete me
-	fp := getFilePath() // delete me
-	_, err := toml.DecodeFile(fp, config) // delete me
-	if err != nil { // delete me
-		logger.Logger.Error("toml.DecodeFile", zap.Error(err)) // delete me
-	} // delete me
-} // delete me
+func newTomlValues(task tasks.Task) tomlValues {
+	return tomlValues{Tasks: []tasks.Task{task}}
+}
 
-func Store(t interface{}) error { // delete me
-	fp := getFilePath() // delete me
-	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) // delete me
-	if err != nil { // delete me
-		logger.Logger.Error("os.OpenFile", zap.Error(err)) // delete me
-		return fmt.Errorf("os.OpenFile %v", err) // delete me
-	} // delete me
-	defer func(file *os.File) { // delete me
-		err := file.Sync() // delete me
-		if err != nil { // delete me
-			logger.Logger.Error("Sync file", zap.Error(err)) // delete me
-		} // delete me
+func NewStorage() *Storage {
+	storagePath, err := env.GetAppDir()
+	if err != nil {
+		logger.Error("New storage", zap.Error(err))
+	}
+	return &Storage{
+		filepath: filepath.Join(storagePath, "todo.toml"),
+	}
+}
 
-		err = file.Close() // delete me
-		if err != nil { // delete me
-			logger.Logger.Error("Close file", zap.Error(err)) // delete me
-		} // delete me
-	}(file) // delete me
+func (s *Storage) Read() []tasks.Task {
+	fp := s.filepath
+	var v tomlValues
+	_, err := toml.DecodeFile(fp, &v)
+	if err != nil {
+		logger.Error("toml.DecodeFile", zap.Error(err))
+	}
+	return v.Tasks
+}
 
-	tomlTask, tomlErr := toml.Marshal(struct { // delete me
-		Task []interface{} `toml:"task"` // delete me
-	}{Task: []interface{}{t}}) // delete me
+func (s *Storage) Store(t tasks.Task) error {
+	fp := s.filepath
+	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		logger.Error("os.OpenFile", zap.Error(err))
+		return fmt.Errorf("os.OpenFile %v", err)
+	}
+	defer func(file *os.File) {
+		err := file.Sync()
+		if err != nil {
+			logger.Error("Sync file", zap.Error(err))
+		}
 
-	if tomlErr != nil { // delete me
-		logger.Logger.Error("Marshal task", zap.Error(tomlErr)) // delete me
-	} // delete me
+		err = file.Close()
+		if err != nil {
+			logger.Error("Close file", zap.Error(err))
+		}
+	}(file)
 
-	_, err = file.WriteString(string(tomlTask)) // delete me
-	if err != nil { // delete me
-		logger.Logger.Error("WriteString", zap.Error(err)) // delete me
-		return fmt.Errorf("WriteString %v", err) // delete me
-	} // delete me
-	logger.Logger.Info("Data written successfully!", zap.String("tomlTask", string(tomlTask))) // delete me
-	return nil // delete me
-} // delete me
+	tomlTask, tomlErr := toml.Marshal(newTomlValues(t))
 
-// TODO remove me after PR // delete me
+	if tomlErr != nil {
+		logger.Error("Marshal task", zap.Error(tomlErr))
+	}
+
+	_, err = file.Write(tomlTask)
+	if err != nil {
+		logger.Error("file.Write", zap.Error(err))
+		return fmt.Errorf("file.Write %v", err)
+	}
+	logger.Info("Data written successfully!", zap.String("tomlTask", string(tomlTask)))
+	return nil
+}
