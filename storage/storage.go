@@ -99,6 +99,49 @@ func (s *Storage) Delete(ids []string) error {
 	return nil
 }
 
+func (s *Storage) ChangeStatus(id tasks.Id, status tasks.Status) error {
+	fp := s.filepath
+	file, err := os.OpenFile(fp, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var v tomlValues
+	_, err = toml.DecodeFile(fp, &v)
+	if err != nil {
+		return err
+	}
+
+	var updatedTasks []tasks.Task
+	for _, t := range v.Tasks {
+		if t.Id == id {
+			t.Status = tasks.DONE
+			t.Progress = 100
+		}
+		updatedTasks = append(updatedTasks, t)
+	}
+
+	tomlTasks, tomlErr := toml.Marshal(tomlValues{Tasks: updatedTasks})
+	if tomlErr != nil {
+		logger.Error("Marshal task", zap.Error(tomlErr))
+		return tomlErr
+	}
+
+	err = file.Truncate(0)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(tomlTasks)
+	if err != nil {
+		logger.Error("file.Write", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
 func (s *Storage) Store(t tasks.Task) error {
 	fp := s.filepath
 	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
