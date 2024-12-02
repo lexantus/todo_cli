@@ -43,6 +43,62 @@ func (s *Storage) Read() []tasks.Task {
 	return v.Tasks
 }
 
+func (s *Storage) Delete(ids []string) error {
+	fp := s.filepath
+	file, err := os.OpenFile(fp, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("os.OpenFile %v", err)
+	}
+	defer file.Close()
+
+	var v tomlValues
+	_, err = toml.DecodeFile(fp, &v)
+	if err != nil {
+		return fmt.Errorf("toml.DecodeFile %v", err)
+	}
+
+	isFound := false
+	var updatedTasks []tasks.Task
+	for _, t := range v.Tasks {
+		toDelete := false
+		for _, id := range ids {
+			if t.Id == tasks.Id(id) {
+				toDelete = true
+				isFound = true
+				fmt.Printf("I will delete task(s) with id(s): %v\n", t.Id)
+				break
+			}
+		}
+		if !toDelete {
+			updatedTasks = append(updatedTasks, t)
+		}
+	}
+
+	if !isFound {
+		fmt.Printf("No such id(s): %v\n", ids)
+		return nil
+	}
+
+	err = file.Truncate(0)
+	if err != nil {
+		logger.Error("Truncate file", zap.Error(err))
+		return err
+	}
+
+	tomlTasks, tomlErr := toml.Marshal(tomlValues{Tasks: updatedTasks})
+	if tomlErr != nil {
+		logger.Error("Marshal task", zap.Error(tomlErr))
+		return tomlErr
+	}
+
+	_, err = file.Write(tomlTasks)
+	if err != nil {
+		logger.Error("file.Write", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
 func (s *Storage) Store(t tasks.Task) error {
 	fp := s.filepath
 	file, err := os.OpenFile(fp, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

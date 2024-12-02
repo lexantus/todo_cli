@@ -1,16 +1,16 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/lexantus/todo_cli/storage"
 	"github.com/spf13/cobra"
 )
 
 var removeCmd = &cobra.Command{
 	Use:   "remove",
-	Short: "A brief description of your command",
-	Long:  ``,
+	Short: "Remove task with ids",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("remove called")
+		storage := storage.NewStorage()
+		storage.Delete(args)
 	},
 }
 
