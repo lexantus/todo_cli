@@ -1,16 +1,14 @@
 package tasks
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
+	"github.com/google/uuid"
 	"log"
-	"time"
 )
 
-//go:generate go run github.com/dmarkham/enumer -type=Status -output=status_enumer.go
-
 type Id string
+
+//go:generate go run github.com/dmarkham/enumer -type=Status -output=status_enumer.go
 type Status int
 
 const (
@@ -42,30 +40,14 @@ func (t Task) String() string {
 	return fmt.Sprintf("[%s] %s [%d%%]", statusIndicator, t.Desc, t.Progress)
 }
 
-func generateUniqueID() Id {
-	// Get the current timestamp
-	timestamp := time.Now().UnixNano()
-
-	// Generate a random number
-	randomBytes := make([]byte, 4)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		panic(err)
-	}
-
-	// Combine timestamp and random bytes
-	id := fmt.Sprintf("%d-%s", timestamp, hex.EncodeToString(randomBytes))
-	return Id(id)
-}
-
 func NewTask(desc string) Task {
-	id := generateUniqueID()
+	id := uuid.New().String()
 	task := Task{
-		Id:     id,
+		Id:     Id(id),
 		Desc:   desc,
 		Status: WAITING,
 	}
-	tasks[id] = task
+	tasks[Id(id)] = task
 	return task
 }
 

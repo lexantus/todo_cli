@@ -11,13 +11,14 @@ import (
 
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
+	Short: "Add task",
 	Run: func(cmd *cobra.Command, args []string) {
 		description := strings.Join(args, " ")
 		task := tasks.NewTask(description)
+		storage := storage.NewStorage()
 		err := storage.Store(task)
 		if err != nil {
-			logger.Logger.Error("Store from add command", zap.Error(err))
+			logger.Error("Store from add command", zap.Error(err))
 		}
 	},
 }
