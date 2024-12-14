@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/lexantus/todo_cli/storage"
+	"github.com/lexantus/todo_cli/tasks"
 	"github.com/spf13/cobra"
 )
 
 var completeCmd = &cobra.Command{
 	Use:   "complete",
-	Short: "A brief description of your command",
+	Short: "Complete task with id",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("complete called")
+		storage := storage.NewStorage()
+		storage.ChangeStatus(tasks.Id(args[0]), tasks.DONE)
 	},
 }
 

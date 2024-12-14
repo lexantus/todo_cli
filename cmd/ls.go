@@ -15,12 +15,12 @@ var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "List of todo tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		var config Config
-		storage.Read(&config)
-		for _, task := range config.Tasks {
+		storage := storage.NewStorage()
+		tasks := storage.Read()
+		for _, task := range tasks {
 			fmt.Printf("ID: %s, Description: %s, Status: %d, Progress: %d%%\n", task.Id, task.Desc, task.Status, task.Progress)
 		}
-		for _, task := range config.Tasks {
+		for _, task := range tasks {
 			fmt.Println(task.String())
 		}
 	},

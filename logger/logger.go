@@ -13,3 +13,11 @@ func init() {
 	Logger, _ = config.Build()
 	defer Logger.Sync()
 }
+
+func Error(msg string, fields ...zap.Field) {
+	Logger.Error(msg, fields...)
+}
+
+func Info(msg string, fields ...zap.Field) {
+	Logger.Info(msg, fields...)
+}
